@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng ký tài khoản Phúc Long</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .logo img {
+      width: 100px;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 1.5em;
+      margin-bottom: 5px;
+    }
+    .subtitle {
+      color: #888;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.9em;
+    }
+    input[type="tel"],
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    .password-container {
+      position: relative;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+    .form-group.checkbox {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .form-group.checkbox label {
+      margin: 0;
+    }
+    .link {
+      color: #28a745;
+      text-decoration: none;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .error {
+      color: red;
+      font-size: 0.9em;
+      text-align: left;
+      margin-top: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://via.placeholder.com/100?text=Phuc+Long" alt="Phúc Long Logo">
+    </div>
+    <h2>Đăng ký tài khoản PHÚC LONG</h2>
+    <p class="subtitle">Đăng ký cho số điện thoại</p>
+    <form id="registerForm" action="register.php" method="POST">
+      <div class="form-group">
+        <label for="phone">Số điện thoại *</label>
+        <input type="tel" id="phone" name="sodienthoai" placeholder="" required>
+      </div>
+      <div class="form-group">
+        <label for="address">Địa chỉ *</label>
+        <input type="text" id="address" name="diachi" placeholder="" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input type="email" id="email" name="email" placeholder="" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Mật khẩu *</label>
+        <div class="password-container">
+          <input type="password" id="password" name="matkhau" placeholder="" required>
+          <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <button type="submit">ĐĂNG KÝ NGAY</button>
+      </div>
+    </form>
+    <div id="message" class="error"></div>
+  </div>
+
+  <script>
+    function togglePassword(inputId, icon) {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "👁️‍🗨️";
+      } else {
+        input.type = "password";
+        icon.textContent = "👁️";
+      }
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+      const message = document.getElementById('message');
+      if (!this.checkValidity()) {
+        event.preventDefault();
+        message.style.display = 'block';
+        message.textContent = 'Vui lòng điền đầy đủ thông tin hợp lệ.';
+      } else {
+        message.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
