@@ -47,7 +47,6 @@
       <h3 style="margin: 20px 0 10px; font-size: 16px;">ĐIỀU KHOẢN SỬ DỤNG</h3>
       <p>Chính sách bảo mật thông tin</p>
       <p>Chính sách đặt hàng</p>
-      <img src="https://phuclong.com.vn/images/logoSaleNoti.png" alt="Đã thông báo BCT" style="margin-top: 10px; width: 120px;">
     </div>
   </div>
 

@@ -47,6 +47,18 @@
 
     .icon--header a {
       margin-left: 16px;
+      position: relative;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #ff4444;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
     }
 
     input.search-input {
@@ -56,6 +68,45 @@
       border-radius: 9999px;
       width: 100%;
       font-size: 14px;
+    }
+
+    .user-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .user-dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      z-index: 1000;
+    }
+
+    .user-dropdown:hover .user-dropdown-content {
+      display: block;
+    }
+
+    .user-dropdown-content a {
+      color: #333;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .user-dropdown-content a:hover {
+      background-color: #f5f5f5;
+      color: #007a33;
+    }
+
+    .user-dropdown-content .divider {
+      border-top: 1px solid #eee;
+      margin: 4px 0;
     }
 
     @media (max-width: 768px) {
@@ -73,13 +124,27 @@
 </head>
 
 <body class="font-sans">
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+// Tính tổng số lượng sản phẩm trong giỏ hàng
+$cart_count = 0;
+if (isset($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $quantity) {
+        $cart_count += $quantity;
+    }
+}
+?>
 
   <!-- HEADER -->
   <header class="bg-white shadow-sm">
     <nav class="flex items-center justify-between px-6 py-3 max-w-screen-xl mx-auto">
       <!-- Logo -->
       <div class="flex items-center space-x-4">
-        <img src="https://phuclong.com.vn/_next/static/images/logo_2-fdd0b762f4686e31e1101d029a664bc9.png" alt="Phúc Long Logo" class="h-10">
+        <a href="/PhucLongProject/index.php">
+          <img src="https://phuclong.com.vn/_next/static/images/logo_2-fdd0b762f4686e31e1101d029a664bc9.png" alt="Phúc Long Logo" class="h-10">
+        </a>
       </div>
 
       <!-- Thanh tìm kiếm -->
@@ -96,15 +161,42 @@
       <!-- Icon -->
       <div class="icon--header flex items-center">
         <a href="#"><i class="fa-solid fa-envelope fa-lg" style="color: #006633;"></i></a>
-        <a href="login.html"><i class="fa-regular fa-circle-user fa-xl" style="color: #006633;"></i></a>
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <div class="user-dropdown">
+            <a href="#" class="user-icon">
+              <i class="fa-regular fa-circle-user fa-xl" style="color: #006633;"></i>
+            </a>
+            <div class="user-dropdown-content">
+              <a href="/PhucLongProject/view/profile.php">
+                <i class="fas fa-user me-2"></i> Thông tin cá nhân
+              </a>
+              <a href="/PhucLongProject/view/orders.php">
+                <i class="fas fa-shopping-bag me-2"></i> Đơn hàng của tôi
+              </a>
+              <div class="divider"></div>
+              <a href="/PhucLongProject/view/logout.php">
+                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+              </a>
+            </div>
+          </div>
+        <?php else: ?>
+          <a href="/PhucLongProject/view/login.php"><i class="fa-regular fa-circle-user fa-xl" style="color: #006633;"></i></a>
+        <?php endif; ?>
+        <a href="/PhucLongProject/view/cart.php" class="cart-icon">
+          <i class="fa-solid fa-cart-shopping fa-lg" style="color: #006633;"></i>
+          <?php if ($cart_count > 0): ?>
+            <span class="cart-count"><?php echo $cart_count; ?></span>
+          <?php endif; ?>
+        </a>
       </div>
+
     </nav>
   </header>
 
   <!-- MENU -->
   <div class="menu-index text-sm tracking-wide">
-    <a href="index.php">TRANG CHỦ</a>
-    <a href="view/products.php">MENU</a>
+    <a href="/PhucLongProject/index.php">TRANG CHỦ</a>
+    <a href="/PhucLongProject/view/products.php">MENU</a>
     <a href="#">SẢN PHẨM ĐÓNG GÓI</a>
     <a href="#">VỀ CHÚNG TÔI</a>
     <a href="#">KHUYẾN MÃI</a>
