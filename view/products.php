@@ -2,6 +2,7 @@
 session_start();
 include '../model/connect.php';
 
+
 // Xử lý thêm vào giỏ hàng — PHẢI đặt trước khi include header.php
 if (isset($_POST['add_to_cart'])) {
     // Kiểm tra đăng nhập
@@ -35,8 +36,23 @@ if (isset($_POST['add_to_cart'])) {
 
 // 👉 Sau khi xử lý logic, mới include giao diện
 include 'header.php';
-?>
 
+// Lấy danh sách danh mục
+$sql_danhmuc = "SELECT * FROM danhmuc WHERE TrangThai = 1";
+$result_danhmuc = $conn->query($sql_danhmuc);
+
+// Xử lý lọc theo danh mục
+$selected_danhmuc = isset($_GET['danhmuc']) ? $_GET['danhmuc'] : 'all';
+
+// Lấy danh sách sản phẩm với điều kiện lọc
+$sql_sanpham = "SELECT s.*, d.TenDM 
+                FROM sanpham s 
+                LEFT JOIN danhmuc d ON s.MaDM = d.MaDM";
+if ($selected_danhmuc !== 'all') {
+    $sql_sanpham .= " WHERE s.MaDM = " . intval($selected_danhmuc);
+}
+$result_sanpham = $conn->query($sql_sanpham);
+?>
 
 <style>
     body {
@@ -141,33 +157,58 @@ include 'header.php';
     </div>
 <?php endif; ?>
 
-<div class="grid-container">
-<?php
-$sql = "SELECT * FROM sanpham";
-$result = $conn->query($sql);
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row gap-8">
+        <!-- Sidebar Danh Mục -->
+        <div class="w-full md:w-64 bg-white rounded-lg shadow-sm p-4">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800">Danh Mục Sản Phẩm</h2>
+            <ul class="space-y-2">
+                <li>
+                    <a href="?danhmuc=all" 
+                       class="block px-4 py-2 rounded <?php echo $selected_danhmuc === 'all' ? 'bg-green-50 text-green-600' : 'hover:bg-green-50 text-gray-700 hover:text-green-600'; ?>">
+                        Tất cả sản phẩm
+                    </a>
+                </li>
+                <?php while($danhmuc = $result_danhmuc->fetch_assoc()): ?>
+                <li>
+                    <a href="?danhmuc=<?php echo $danhmuc['MaDM']; ?>" 
+                       class="block px-4 py-2 rounded <?php echo $selected_danhmuc == $danhmuc['MaDM'] ? 'bg-green-50 text-green-600' : 'hover:bg-green-50 text-gray-700 hover:text-green-600'; ?>">
+                        <?php echo $danhmuc['TenDM']; ?>
+                    </a>
+                </li>
+                <?php endwhile; ?>
+            </ul>
+        </div>
 
-if ($result->num_rows > 0):
-    while($row = $result->fetch_assoc()):
-?>
-    <div class="card">
-        <img src="../uploads/<?= htmlspecialchars($row['AnhNen']) ?>" alt="<?= htmlspecialchars($row['TenSP']) ?>">
-        <h3><?= htmlspecialchars($row['TenSP']) ?></h3>
-        <div class="price"><?= number_format($row['DonGia']) ?> đ</div>
-        <form method="POST" class="d-flex justify-content-center align-items-center">
-            <input type="hidden" name="product_id" value="<?= $row['MaSP'] ?>">
-            <input type="number" name="quantity" value="1" min="1" class="quantity-input">
-            <button type="submit" name="add_to_cart" class="btn">
-                <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
-            </button>
-        </form>
+        <!-- Danh sách sản phẩm -->
+        <div class="flex-1">
+            <?php if ($result_sanpham->num_rows > 0): ?>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <?php while($sanpham = $result_sanpham->fetch_assoc()): ?>
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <a href="products-detail.php?id=<?php echo $sanpham['MaSP']; ?>">
+                        <img src="../uploads/products/<?php echo $sanpham['AnhNen']; ?>" alt="<?php echo $sanpham['TenSP']; ?>" class="product-image">
+                    </a>
+                    <div class="p-4">
+                        <a href="products-detail.php?id=<?php echo $sanpham['MaSP']; ?>" class="text-decoration-none">
+                            <h3 class="text-lg font-semibold text-gray-800"><?php echo $sanpham['TenSP']; ?></h3>
+                        </a>
+                        <p class="text-sm text-gray-600 mb-2"><?php echo $sanpham['TenDM']; ?></p>
+                        <p class="text-green-600 font-semibold"><?php echo number_format($sanpham['DonGia'], 0, ',', '.'); ?>đ</p>
+                        <a href="products-detail.php?id=<?php echo $sanpham['MaSP']; ?>" class="mt-4 block w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors text-center">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+                <?php endwhile; ?>
+            </div>
+            <?php else: ?>
+            <div class="text-center py-8">
+                <p class="text-gray-600">Không có sản phẩm nào trong danh mục này.</p>
+            </div>
+            <?php endif; ?>
+        </div>
     </div>
-<?php
-    endwhile;
-else:
-    echo "<p style='text-align:center;'>Không có sản phẩm nào.</p>";
-endif;
-$conn->close();
-?>
 </div>
 
 </body>

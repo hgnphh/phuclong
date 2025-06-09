@@ -7,7 +7,7 @@ ini_set('display_errors', 1);
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['message'] = "Vui lòng đăng nhập để xe  m giỏ hàng!";
     $_SESSION['redirect_after_login'] = $_SERVER['PHP_SELF'];
-    header('Location: login.php');
+    header('Location: view/login.php');
     exit();
 }
 
@@ -45,7 +45,13 @@ $cart_items = array();
 $total = 0;
 
 if (!empty($_SESSION['cart'])) {
-    $product_ids = array_keys($_SESSION['cart']);
+    // Trích xuất ID sản phẩm từ khóa tổng hợp
+    $product_ids = array();
+    foreach ($_SESSION['cart'] as $key => $quantity) {
+        $parts = explode('_', $key);
+        $product_ids[] = $parts[0]; // Lấy phần ID sản phẩm
+    }
+    $product_ids = array_unique($product_ids); // Loại bỏ các ID trùng lặp
     $ids_string = implode(',', $product_ids);
     
     $sql = "SELECT * FROM sanpham WHERE MaSP IN ($ids_string)";
@@ -53,14 +59,37 @@ if (!empty($_SESSION['cart'])) {
     
     if ($result) {
         while ($row = $result->fetch_assoc()) {
+            // Tìm tất cả các mục giỏ hàng cho sản phẩm này
+            $product_quantities = array();
+            foreach ($_SESSION['cart'] as $key => $quantity) {
+                $parts = explode('_', $key);
+                if ($parts[0] == $row['MaSP']) {
+                    // Thêm 5000 VND cho size L
+                    $price = $row['DonGia'];
+                    if ($parts[1] === 'L') {
+                        $price += 5000;
+                    }
+                    
+                    $product_quantities[] = array(
+                        'size' => $parts[1],
+                        'quantity' => $quantity,
+                        'price' => $price
+                    );
+                }
+            }
+            
+            // Thêm từng biến thể size như một mục giỏ hàng riêng biệt
+            foreach ($product_quantities as $variant) {
             $cart_items[] = array(
-                'id' => $row['MaSP'],
+                    'id' => $row['MaSP'] . '_' . $variant['size'],
                 'name' => $row['TenSP'],
-                'price' => $row['DonGia'],
+                    'price' => $variant['price'],
                 'image' => $row['AnhNen'],
-                'quantity' => $_SESSION['cart'][$row['MaSP']]
+                    'quantity' => $variant['quantity'],
+                    'size' => $variant['size']
             );
-            $total += $row['DonGia'] * $_SESSION['cart'][$row['MaSP']];
+                $total += $variant['price'] * $variant['quantity'];
+            }
         }
     } else {
         echo "Lỗi truy vấn: " . $conn->error;
@@ -107,13 +136,16 @@ if (!empty($_SESSION['cart'])) {
                         <div class="cart-item">
                             <div class="row align-items-center">
                                 <div class="col-md-2">
-                                    <img src="../uploads/<?php echo htmlspecialchars($item['image']); ?>" 
-                                         alt="<?php echo htmlspecialchars($item['name']); ?>" 
-                                         class="img-fluid">
+                                    <img src="../uploads/products/<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>" class="cart-product-image">
                                 </div>
                                 <div class="col-md-4">
                                     <h5><?php echo htmlspecialchars($item['name']); ?></h5>
+                                    <p class="text-muted">Size: <?php echo htmlspecialchars($item['size']); ?></p>
+                                    <?php if ($item['size'] === 'L'): ?>
+                                        <p class="text-muted">Giá: <?php echo number_format($item['price']); ?> VNĐ (đã bao gồm phí size L)</p>
+                                    <?php else: ?>
                                     <p class="text-muted"><?php echo number_format($item['price']); ?> VNĐ</p>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="col-md-3">
                                     <form method="POST" class="d-flex align-items-center">

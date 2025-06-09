@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://kit.fontawesome.com/a8df2d5945.js" crossorigin="anonymous"></script>
   <style>
+ 
     .menu-index a {
       padding: 10px 16px;
       font-size: 14px;
@@ -120,6 +121,10 @@
         font-size: 13px;
       }
     }
+    .menu-index a.active {
+  color: #007f3f;
+  border-bottom: 2px solid #007f3f;
+}
   </style>
 </head>
 
@@ -136,7 +141,7 @@ if (isset($_SESSION['cart'])) {
     }
 }
 ?>
-
+<div class="wrapper">
   <!-- HEADER -->
   <header class="bg-white shadow-sm">
     <nav class="flex items-center justify-between px-6 py-3 max-w-screen-xl mx-auto">
@@ -201,4 +206,5 @@ if (isset($_SESSION['cart'])) {
     <a href="#">VỀ CHÚNG TÔI</a>
     <a href="#">KHUYẾN MÃI</a>
     <a href="#">HỘI VIÊN</a>
+  </div>
   </div>
